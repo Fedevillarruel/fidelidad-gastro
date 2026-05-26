@@ -3,6 +3,13 @@ import { DEMO_METRICS, readLocalDb, writeLocalDb } from './demo-data'
 import { hasSupabaseConfig, supabase } from './supabase'
 import type { Customer, DashboardMetrics, PointEvent, Promotion, Restaurant, Whokey } from '../types'
 
+const APP_KEY = 'gastro-whokey'
+const SCHEMA = 'gastro_whokey'
+
+function gw() {
+  return supabase?.schema(SCHEMA)
+}
+
 function uid() {
   return Math.random().toString(36).slice(2, 10)
 }
@@ -13,7 +20,7 @@ function safe<T>(value: T, fallback: T): T {
 
 export async function getRestaurants(): Promise<Restaurant[]> {
   if (hasSupabaseConfig && supabase) {
-    const { data, error } = await supabase.from('restaurants').select('*').order('name')
+    const { data, error } = await gw()!.from('restaurants').select('*').eq('app_key', APP_KEY).order('name')
     if (!error && data) {
       return data as Restaurant[]
     }
@@ -32,9 +39,10 @@ export async function createRestaurant(payload: {
   loyaltyUnit: string
 }) {
   if (hasSupabaseConfig && supabase) {
-    const { data, error } = await supabase
+    const { data, error } = await gw()!
       .from('restaurants')
       .insert({
+        app_key: APP_KEY,
         name: payload.name,
         slug: payload.slug,
         primary_color: payload.primaryColor,
@@ -42,7 +50,7 @@ export async function createRestaurant(payload: {
         loyalty_goal: payload.loyaltyGoal,
         loyalty_reward: payload.loyaltyReward,
         loyalty_unit: payload.loyaltyUnit,
-        typography: 'Space Grotesk',
+        typography: 'Sora',
       })
       .select('*')
       .single()
@@ -59,7 +67,7 @@ export async function createRestaurant(payload: {
     name: payload.name,
     primary_color: payload.primaryColor,
     secondary_color: payload.secondaryColor,
-    typography: 'Space Grotesk',
+    typography: 'Sora',
     loyalty_goal: payload.loyaltyGoal,
     loyalty_reward: payload.loyaltyReward,
     loyalty_unit: payload.loyaltyUnit,
@@ -77,7 +85,7 @@ export async function getRestaurantBySlug(slug: string): Promise<Restaurant | nu
 
 export async function getRestaurantCustomers(restaurantId: string): Promise<Customer[]> {
   if (hasSupabaseConfig && supabase) {
-    const { data, error } = await supabase
+    const { data, error } = await gw()!
       .from('customers')
       .select('*')
       .eq('restaurant_id', restaurantId)
@@ -95,7 +103,7 @@ export async function getRestaurantCustomers(restaurantId: string): Promise<Cust
 
 export async function getRestaurantPromotions(restaurantId: string): Promise<Promotion[]> {
   if (hasSupabaseConfig && supabase) {
-    const { data, error } = await supabase
+    const { data, error } = await gw()!
       .from('promotions')
       .select('*')
       .eq('restaurant_id', restaurantId)
@@ -140,7 +148,7 @@ export async function upsertWhokeyAndMaybeCustomer(input: {
   phone?: string
 }) {
   if (hasSupabaseConfig && supabase) {
-    const existing = await supabase
+    const existing = await gw()!
       .from('whokeys')
       .select('*')
       .eq('restaurant_id', input.restaurantId)
@@ -151,7 +159,7 @@ export async function upsertWhokeyAndMaybeCustomer(input: {
       return existing.data as Whokey
     }
 
-    const customerInsert = await supabase
+    const customerInsert = await gw()!
       .from('customers')
       .insert({
         restaurant_id: input.restaurantId,
@@ -167,7 +175,7 @@ export async function upsertWhokeyAndMaybeCustomer(input: {
       throw new Error(customerInsert.error?.message ?? 'No se pudo crear cliente en Supabase')
     }
 
-    const whokeyInsert = await supabase
+    const whokeyInsert = await gw()!
       .from('whokeys')
       .insert({
         restaurant_id: input.restaurantId,
@@ -223,7 +231,7 @@ export async function upsertWhokeyAndMaybeCustomer(input: {
 
 export async function findCustomerByWhokey(restaurantId: string, codeOrUid: string) {
   if (hasSupabaseConfig && supabase) {
-    const { data: whokey } = await supabase
+    const { data: whokey } = await gw()!
       .from('whokeys')
       .select('*')
       .eq('restaurant_id', restaurantId)
@@ -234,7 +242,7 @@ export async function findCustomerByWhokey(restaurantId: string, codeOrUid: stri
       return null
     }
 
-    const { data: customer } = await supabase
+    const { data: customer } = await gw()!
       .from('customers')
       .select('*')
       .eq('id', whokey.customer_id)
@@ -281,7 +289,7 @@ export async function applyPointsEvent(input: {
 
     const nextVisits = input.type === 'add' ? customer.visits + 1 : customer.visits
 
-    const customerUpdate = await supabase
+    const customerUpdate = await gw()!
       .from('customers')
       .update({ points: nextPoints, visits: nextVisits, last_visit: new Date().toISOString() })
       .eq('id', customer.id)
@@ -290,7 +298,7 @@ export async function applyPointsEvent(input: {
       throw new Error(customerUpdate.error.message)
     }
 
-    const eventInsert = await supabase.from('point_events').insert({
+    const eventInsert = await gw()!.from('point_events').insert({
       restaurant_id: input.restaurantId,
       customer_id: customer.id,
       source: input.source,
