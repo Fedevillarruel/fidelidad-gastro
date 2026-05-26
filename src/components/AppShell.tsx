@@ -1,31 +1,59 @@
+import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { LogOut, Shield, Store, User } from 'lucide-react'
+import { LogOut, Menu, Shield, Store, User, X } from 'lucide-react'
 import type { PropsWithChildren } from 'react'
 import { useAuth } from '../context/AuthContext'
 
 export function AppShell({ children }: PropsWithChildren) {
   const { session, logout } = useAuth()
   const navigate = useNavigate()
+  const [menuOpen, setMenuOpen] = useState(false)
 
   function onLogout() {
     logout()
+    setMenuOpen(false)
     navigate('/')
+  }
+
+  function closeMenu() {
+    setMenuOpen(false)
   }
 
   return (
     <div className="app-shell">
       <header className="topbar">
-        <Link to="/" className="brand-pill">
-          Gastro Whokey
+        <Link to="/" className="brand-pill" onClick={closeMenu}>
+          <strong>Gastro Whokey</strong>
+          <span>Loyalty NFC + QR</span>
         </Link>
-        <nav className="topnav">
-          <NavLink to="/" end>
+
+        <button className="menu-toggle" type="button" onClick={() => setMenuOpen((v) => !v)}>
+          {menuOpen ? <X size={18} /> : <Menu size={18} />}
+          Menu
+        </button>
+
+        <nav className={`topnav ${menuOpen ? 'open' : ''}`}>
+          <NavLink to="/" end onClick={closeMenu}>
             Inicio
           </NavLink>
-          <NavLink to="/auth">Ingresar</NavLink>
-          {session?.role === 'restaurant' && <NavLink to="/restaurant">Panel Restaurante</NavLink>}
-          {session?.role === 'client' && <NavLink to="/client">Mi Fidelidad</NavLink>}
-          {session?.role === 'super_admin' && <NavLink to="/super-admin">Super Admin</NavLink>}
+          <NavLink to="/auth" onClick={closeMenu}>
+            Ingresar
+          </NavLink>
+          {session?.role === 'restaurant' && (
+            <NavLink to="/restaurant" onClick={closeMenu}>
+              Panel Restaurante
+            </NavLink>
+          )}
+          {session?.role === 'client' && (
+            <NavLink to="/client" onClick={closeMenu}>
+              Mi Fidelidad
+            </NavLink>
+          )}
+          {session?.role === 'super_admin' && (
+            <NavLink to="/super-admin" onClick={closeMenu}>
+              Super Admin
+            </NavLink>
+          )}
         </nav>
 
         <div className="session-chip">

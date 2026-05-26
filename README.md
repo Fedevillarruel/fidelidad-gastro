@@ -49,6 +49,8 @@ Ejecutar en SQL Editor de Supabase, en este orden:
 1. `supabase/schema.sql`
 2. `supabase/seed.sql` (opcional para datos demo)
 
+Si corres `seed.sql` antes de `schema.sql`, ahora no rompe: muestra un `NOTICE` indicando que primero debes crear el esquema.
+
 ## Flujo NFC / QR
 
 - Alta Whokey nuevo: en panel restaurante, cargar UID y datos cliente, luego registrar.

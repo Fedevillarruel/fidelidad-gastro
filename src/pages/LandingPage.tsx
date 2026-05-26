@@ -4,6 +4,9 @@ import { QrCode, Radio, Shield, Store, UserRound } from 'lucide-react'
 export function LandingPage() {
   return (
     <section className="hero-layout">
+      <div className="orb orb-a" aria-hidden="true" />
+      <div className="orb orb-b" aria-hidden="true" />
+
       <div className="hero-copy">
         <p className="eyebrow">Fidelidad gastronomica con NFC + QR</p>
         <h1>Gastro Whokey</h1>
@@ -11,6 +14,11 @@ export function LandingPage() {
           Una app para restaurantes que registra consumos con llaveros NFC 215 o QR,
           premia recurrencia y da visibilidad en tiempo real al cliente sobre sus puntos.
         </p>
+        <div className="hero-highlights">
+          <span>Whokey NFC 215</span>
+          <span>QR backup</span>
+          <span>Panel multirol</span>
+        </div>
         <div className="hero-actions">
           <Link to="/auth" className="primary-btn">
             Entrar a la plataforma
