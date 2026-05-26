@@ -86,3 +86,4 @@ git push -u origin main
 - Activar Auth real de Supabase (email OTP, password o SSO) y mapear perfiles por usuario.
 - Mover operaciones sensibles a Edge Functions o backend seguro.
 - Añadir auditoria completa de movimientos, permisos por restaurante y logs de hardware NFC.
+- Nunca usar `service_role` en frontend/web mobile; solo en backend/Edge Functions con secretos de servidor.
